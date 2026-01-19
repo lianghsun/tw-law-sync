@@ -284,6 +284,46 @@ tags:
 - law
 - taiwan
 pretty_name: Taiwan Laws & Orders (MOJ)
+configs:
+- config_name: ch_law_articles
+  data_files:
+  - split: train
+    path: ch_law_articles/train.jsonl
+
+- config_name: ch_law_full_text
+  data_files:
+  - split: train
+    path: ch_law_full_text/train.jsonl
+
+- config_name: ch_order_articles
+  data_files:
+  - split: train
+    path: ch_order_articles/train.jsonl
+
+- config_name: ch_order_full_text
+  data_files:
+  - split: train
+    path: ch_order_full_text/train.jsonl
+
+- config_name: en_law_articles
+  data_files:
+  - split: train
+    path: en_law_articles/train.jsonl
+
+- config_name: en_law_full_text
+  data_files:
+  - split: train
+    path: en_law_full_text/train.jsonl
+
+- config_name: en_order_articles
+  data_files:
+  - split: train
+    path: en_order_articles/train.jsonl
+
+- config_name: en_order_full_text
+  data_files:
+  - split: train
+    path: en_order_full_text/train.jsonl
 ---
 
 # {repo_id}
