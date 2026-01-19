@@ -1,0 +1,6 @@
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+TZ=Asia/Taipei
+
+# 每週五 00:30 跑一次（資料庫標示雙週五定期更新，但我們用 UpdateDate 去重，因此安全）
+30 0 * * 5 python /app/sync_moj_law.py --repo_id lianghsun/tw-law --workdir /data --push >> /proc/1/fd/1 2>> /proc/1/fd/2
