@@ -1,0 +1,39 @@
+name: Daily MOJ Law Sync
+
+on:
+  schedule:
+    - cron: '30 16 * * *'  # 00:30 Asia/Taipei (UTC+8)
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # meta_cache 存放 last_update.json，用來跨 run 去重。
+      # key 含 run_id（唯一），讓每次成功都寫入新快取；
+      # restore-keys 前綴確保能取到最近一次快取。
+      - name: Restore meta_cache
+        uses: actions/cache@v4
+        with:
+          path: data/meta_cache
+          key: meta-cache-${{ github.run_id }}
+          restore-keys: |
+            meta-cache-
+
+      - name: Run sync
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: python sync_moj_law.py --repo_id lianghsun/tw-law --workdir ./data --push
