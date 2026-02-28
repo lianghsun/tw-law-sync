@@ -35,10 +35,26 @@ def taipei_now_iso() -> str:
     return datetime.now(tpe).strftime("%Y-%m-%dT%H:%M:%S%z")
 
 
-def download_zip(url: str, timeout: int = 180) -> bytes:
-    r = requests.get(url, timeout=timeout)
-    r.raise_for_status()
-    return r.content
+def download_zip(url: str, timeout: int = 180, retries: int = 3) -> bytes:
+    import time
+    last_exc: Exception = RuntimeError("no attempts made")
+    for attempt in range(1, retries + 1):
+        try:
+            r = requests.get(url, timeout=timeout)
+            r.raise_for_status()
+            content = r.content
+            # Verify it's actually a ZIP before returning
+            if not content[:4] in (b"PK\x03\x04", b"PK\x05\x06", b"PK\x07\x08"):
+                raise ValueError(
+                    f"Response is not a ZIP file (starts with {content[:4]!r}, HTTP {r.status_code})")
+            return content
+        except Exception as e:
+            last_exc = e
+            if attempt < retries:
+                wait = 2 ** attempt
+                print(f"  Attempt {attempt}/{retries} failed: {e}. Retrying in {wait}s...", flush=True)
+                time.sleep(wait)
+    raise last_exc
 
 
 def extract_single_json_from_zip(zip_bytes: bytes) -> Tuple[str, bytes]:
