@@ -585,6 +585,17 @@ def push_to_hub(repo_id: str, local_dir: str, commit_message: str) -> None:
     )
 
 
+def push_readme_to_hub(repo_id: str, readme_path: str, commit_message: str) -> None:
+    api = HfApi()
+    api.upload_file(
+        repo_id=repo_id,
+        repo_type="dataset",
+        path_or_fileobj=readme_path,
+        path_in_repo="README.md",
+        commit_message=commit_message,
+    )
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--repo_id", default=DEFAULT_REPO_ID)
@@ -631,7 +642,12 @@ def main() -> None:
 
     if prev and update_date_final and prev == update_date_final:
         print(
-            f"[{taipei_now_iso()}] No update (UpdateDate unchanged: {update_date_final}). Skip.", flush=True)
+            f"[{taipei_now_iso()}] No update (UpdateDate unchanged: {update_date_final}). Skipping data, pushing README only.", flush=True)
+        if args.push:
+            readme_path = os.path.join(out_dir, "README.md")
+            write_readme(out_dir, args.repo_id, update_date_final)
+            push_readme_to_hub(args.repo_id, readme_path, commit_message="docs: update dataset card")
+            print(f"[{taipei_now_iso()}] Pushed README to hub: {args.repo_id}", flush=True)
         return
 
     # 寫檔：每個 config 一個 train.jsonl
